@@ -562,9 +562,7 @@
 // module.exports = { generateInvoiceHTML };
 
 
-
 const { formatCurrency, formatDate } = require('./helpers.js');
-const QRCode = require('qrcode');
 
 async function generateInvoiceHTML(invoice) {
   const company = invoice.company;
@@ -582,22 +580,9 @@ async function generateInvoiceHTML(invoice) {
     items: invoice.items || []
   };
 
-  // Generate QR Code for payment link
-  let qrCodeDataUrl = '';
-  if (invoice.payment_link) {
-    try {
-      qrCodeDataUrl = await QRCode.toDataURL(invoice.payment_link, {
-        width: 120,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-    }
-  }
+  // Generate QR code data
+  const qrCodeData = `Invoice: ${invoiceData.invoiceNumber}\nAmount: ${formatCurrency(invoiceData.total)}\nDue: ${invoiceData.dueDate}${invoice.payment_link ? '\n' + invoice.payment_link : ''}`;
+  const qrCodeURL = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrCodeData)}`;
 
   return `
 <!DOCTYPE html>
@@ -628,7 +613,7 @@ async function generateInvoiceHTML(invoice) {
             padding: 40px;
             background: white;
         }
-        
+
         /* Header Section */
         .invoice-header {
             display: flex;
@@ -692,7 +677,7 @@ async function generateInvoiceHTML(invoice) {
             font-weight: 600;
             color: #dc2626;
         }
-        
+
         /* Billing Section */
         .billing-section {
             display: flex;
@@ -741,7 +726,7 @@ async function generateInvoiceHTML(invoice) {
             color: #333;
             font-weight: 600;
         }
-        
+
         /* Table Section */
         .invoice-table {
             width: 100%;
@@ -777,10 +762,6 @@ async function generateInvoiceHTML(invoice) {
             border-bottom: 1px solid #f0f0f0;
         }
         
-        .invoice-table tbody tr:hover {
-            background: #fafafa;
-        }
-        
         .invoice-table td {
             padding: 14px 12px;
             color: #333;
@@ -800,14 +781,7 @@ async function generateInvoiceHTML(invoice) {
             line-height: 1.5;
             color: #1a1a1a;
         }
-        
-        .item-details {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-        
+
         /* Totals Section */
         .totals-section {
             display: flex;
@@ -844,195 +818,125 @@ async function generateInvoiceHTML(invoice) {
             font-weight: 700;
             color: #1a1a1a;
         }
-        
-        /* Payment Information Section */
+
+        /* Payment Section - Compact Version */
         .payment-section {
-            margin-top: 40px;
-            padding: 25px;
+            margin-top: 30px;
+            padding: 20px;
             background: #f8fafb;
             border: 1px solid #e0e7ff;
             border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .payment-content {
-            flex: 1;
         }
         
         .payment-section h3 {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #1a1a1a;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
         .payment-methods {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
         }
         
         .payment-method {
-            padding: 15px;
+            padding: 12px;
             background: white;
             border-radius: 6px;
             border: 1px solid #e5e5e5;
         }
         
         .payment-method h4 {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
         
         .payment-details {
-            font-size: 12px;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .payment-details div {
-            margin-bottom: 4px;
-        }
-        
-        .payment-details strong {
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-        
-        .payment-details a {
-            color: #3b82f6;
-            text-decoration: none;
-            word-break: break-all;
-        }
-        
-        .qr-code-section {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .qr-code-section img {
-            max-width: 100px;
-            height: auto;
-            border: 1px solid #e5e5e5;
-            border-radius: 4px;
-        }
-        
-        .qr-code-section p {
             font-size: 10px;
-            color: #666;
-            margin: 5px 0 0 0;
-            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
         }
-        
-        /* VisaNet Section - Right Side */
-        .visanet-section {
-            margin-left: 30px;
+
+        /* Footer Section with QR Code and Payment Links */
+        .invoice-footer {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-width: 160px;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
         }
         
-        .visanet-logo {
-            max-width: 120px;
-            height: auto;
-            margin-bottom: 15px;
+        .qr-section {
+            text-align: left;
         }
         
-        .visanet-details {
-            background: white;
-            border: 1px solid #e5e5e5;
-            border-radius: 6px;
-            padding: 15px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .visanet-details h4 {
+        .qr-section h4 {
             font-size: 12px;
             font-weight: 600;
             color: #666;
             margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
         
-        .visanet-details div {
+        .qr-code {
+            width: 120px;
+            height: 120px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+        }
+        
+        .payment-links-section {
+            text-align: right;
+            max-width: 400px;
+        }
+        
+        .payment-links-section h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .payment-link-item {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
             font-size: 11px;
-            color: #333;
+        }
+        
+        .payment-link-item strong {
+            color: #1a1a1a;
+            display: block;
             margin-bottom: 4px;
         }
         
-        .visanet-details strong {
-            font-weight: 600;
-            color: #1a1a1a;
+        .payment-link-item a {
+            color: #3b82f6;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 10px;
         }
         
-        /* Print Styles */
+        .visanet-logo {
+            width: 80px;
+            height: auto;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        
         @media print {
-            body {
-                background: white;
-            }
-            
             .invoice-container {
                 padding: 20px;
-            }
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 640px) {
-            .invoice-container {
-                padding: 20px;
-            }
-            
-            .invoice-header {
-                flex-direction: column;
-            }
-            
-            .invoice-title-section {
-                text-align: left;
-                margin-top: 20px;
-            }
-            
-            .billing-section {
-                flex-direction: column;
-            }
-            
-            .invoice-meta {
-                text-align: left;
-                margin-top: 20px;
-            }
-            
-            .payment-section {
-                flex-direction: column;
-            }
-            
-            .visanet-section {
-                margin-left: 0;
-                margin-top: 20px;
-                align-items: flex-start;
-            }
-            
-            .payment-methods {
-                grid-template-columns: 1fr;
-            }
-            
-            .invoice-table {
-                font-size: 11px;
-            }
-            
-            .invoice-table th,
-            .invoice-table td {
-                padding: 8px 6px;
             }
         }
     </style>
@@ -1088,26 +992,18 @@ async function generateInvoiceHTML(invoice) {
                 </tr>
             </thead>
             <tbody>
-                ${invoiceData.items.map((item, index) => {
-                    const description = item.description || '';
-                    const lines = description.split('\\n').filter(line => line.trim());
-                    const mainDescription = lines[0] || '';
-                    const details = lines.slice(1).join('<br>');
-                    
-                    return `
+                ${invoiceData.items.map((item, index) => `
                     <tr>
                         <td class="text-center">${index + 1}</td>
                         <td>
-                            <div class="item-description">${mainDescription}</div>
-                            ${details ? `<div class="item-details">${details}</div>` : ''}
+                            <div class="item-description">${item.description}</div>
                         </td>
                         <td class="text-center">${item.quantity}</td>
                         <td class="text-right">${formatCurrency(item.rate)}</td>
                         <td class="text-center">${item.tax_percentage || 0}%</td>
                         <td class="text-right">${formatCurrency(item.amount)}</td>
                     </tr>
-                    `;
-                }).join('')}
+                `).join('')}
             </tbody>
         </table>
 
@@ -1129,51 +1025,60 @@ async function generateInvoiceHTML(invoice) {
             </table>
         </div>
 
-        <!-- Payment Information with VisaNet on Right -->
-        ${invoice.payment_link ? `
+        <!-- Compact Payment Information -->
         <div class="payment-section">
-            <div class="payment-content">
-                <h3>Payment Information</h3>
-                <div class="payment-methods">
-                    <div class="payment-method">
-                        <h4>MyFatoorah Payment Link</h4>
-                        <div class="payment-details">
-                            <a href="${invoice.payment_link}" target="_blank">
-                                Pay Online - Click Here
-                            </a>
-                            ${qrCodeDataUrl ? `
-                            <div class="qr-code-section">
-                                <img src="${qrCodeDataUrl}" alt="Payment QR Code" />
-                                <p>Scan to Pay</p>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    
-                    <div class="payment-method">
-                        <h4>Bank Account</h4>
-                        <div class="payment-details">
-                            <div><strong>Account Holder:</strong> ${company.name}</div>
-                            <div><strong>IBAN:</strong> AE720860000009331712472</div>
-                            <div><strong>BIC:</strong> WIOBAEADXXX</div>
-                            <div><strong>Business Address:</strong> ${company.address}, ${company.city}, ${company.country}</div>
-                        </div>
+            <h3>Payment Information</h3>
+            <div class="payment-methods">
+                ${invoice.payment_link ? `
+                <div class="payment-method">
+                    <h4>Online Payment</h4>
+                    <div class="payment-details">
+                        <div><strong>Status:</strong> Available</div>
+                        <div><strong>Method:</strong> Card/Bank</div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- VisaNet Section - Right Side -->
-            <div class="visanet-section">
-                <img src="https://res.cloudinary.com/dgtvafpiv/image/upload/v1756392557/WhatsApp_Image_2025-08-28_at_13.59.00_2c742e21_n3cz0r.jpg" 
-                     alt="VisaNet" class="visanet-logo" />
-                <div class="visanet-details">
+                ` : ''}
+                
+                <div class="payment-method">
                     <h4>VisaNet Account</h4>
-                    <div><strong>IAC:</strong> 912695</div>
-                    <div><strong>IAT:</strong> 99185108487291</div>
+                    <div class="payment-details">
+                        <div><strong>IAC:</strong> 912695</div>
+                        <div><strong>IAT:</strong> 99185108487291</div>
+                    </div>
+                </div>
+                
+                <div class="payment-method">
+                    <h4>Bank Transfer</h4>
+                    <div class="payment-details">
+                        <div><strong>IBAN:</strong> AE720860000009331712472</div>
+                        <div><strong>BIC:</strong> WIOBAEADXXX</div>
+                    </div>
                 </div>
             </div>
         </div>
-        ` : ''}
+
+        <!-- Footer with QR Code and Payment Links -->
+        <div class="invoice-footer">
+            <div class="qr-section">
+                <h4>Invoice QR Code</h4>
+                <img src="${qrCodeURL}" alt="Invoice QR Code" class="qr-code">
+            </div>
+            
+            <div class="payment-links-section">
+                <h4>Quick Payment</h4>
+                ${invoice.payment_link ? `
+                <div class="payment-link-item">
+                    <strong>💳 Payment Link:</strong>
+                    <a href="${invoice.payment_link}" target="_blank">${invoice.payment_link}</a>
+                </div>
+                ` : ''}
+                <div class="payment-link-item">
+                    <strong>🌐 VisaNet Portal:</strong>
+                    <a href="https://clink-visanet.it.com" target="_blank">clink-visanet.it.com</a>
+                </div>
+                <img src="https://res.cloudinary.com/dgtvafpiv/image/upload/v1756392557/WhatsApp_Image_2025-08-28_at_13.59.00_2c742e21_n3cz0r.jpg" alt="VisaNet" class="visanet-logo">
+            </div>
+        </div>
     </div>
 </body>
 </html>`;

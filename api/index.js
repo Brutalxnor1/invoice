@@ -95,10 +95,10 @@ app.get("/", (req, res) => {
     timestamp: new Date().toISOString(),
     myfatoorahConfigured: !!MYFATOORAH_API_TOKEN,
     endpoints: [
-      "POST /create-invoice - Create invoice with company registration",
-      "GET /invoices - Get all invoices",
-      "GET /invoices/:id - Get single invoice",
-      "GET /invoices/:id/pdf - Generate PDF",
+      "POST /api/create-invoice - Create invoice with company registration",
+      "GET /api/invoices - Get all invoices",
+      "GET /api/invoices/:id - Get single invoice",
+      "GET /api/invoices/:id/pdf - Generate PDF",
     ],
   });
 });
@@ -162,11 +162,23 @@ app.post("/create-invoice", async (req, res) => {
     }
 
     // Find or create company
-    let { data: company, error: companyError } = await supabase
-      .from("companies")
-      .select("*")
-      .eq("trn", companyTrn)
-      .single();
+    // let { data: company, error: companyError } = await supabase
+    //   .from("companies")
+    //   .select("*")
+    //   .eq("trn", companyTrn)
+    //   .single();
+
+    const company = {
+      id: 'temp-' + Date.now(), // temporary ID for this session
+      name: companyName,
+      address: companyAddress || 'Business Address',
+      city: companyCity || 'Dubai',
+      country: companyCountry || 'United Arab Emirates',
+      trn: companyTrn,
+      email: companyEmail
+    };
+
+
 
     if (companyError && companyError.code !== "PGRST116") {
       // PGRST116 is no rows
@@ -471,7 +483,7 @@ app.post("/create-invoice", async (req, res) => {
 });
 
 // 🔍 Get single invoice
-app.get("/invoices/:invoiceId", async (req, res) => {
+app.get("/api/invoices/:invoiceId", async (req, res) => {
   try {
     const { invoiceId } = req.params;
 
@@ -527,7 +539,7 @@ app.get("/invoices/:invoiceId", async (req, res) => {
 
 
 // In api/index.js, update the PDF route:
-app.get("/invoices/:invoiceId/pdf", async (req, res) => {
+app.get("/api/invoices/:invoiceId/pdf", async (req, res) => {
   try {
     const { invoiceId } = req.params;
 
@@ -556,7 +568,7 @@ app.get("/invoices/:invoiceId/pdf", async (req, res) => {
 
 
 
-app.post("/payment/webhook", async (req, res) => {
+app.post("/api/payment/webhook", async (req, res) => {
   try {
     console.log("🔔 MyFatoorah Webhook Received:", req.body);
 
@@ -610,7 +622,7 @@ app.post("/payment/webhook", async (req, res) => {
 });
 
 // 🔍 Add Token Validation Endpoint
-app.get("/test-token", async (req, res) => {
+app.get("/api/test-token", async (req, res) => {
   try {
     console.log("🧪 Testing MyFatoorah token validity...");
 
@@ -663,7 +675,7 @@ app.get("/test-token", async (req, res) => {
 });
 
 // 🔍 Add Debug Endpoint
-app.get("/debug/:invoiceId", async (req, res) => {
+app.get("/api/debug/:invoiceId", async (req, res) => {
   try {
     const { data: invoice, error } = await supabase
       .from("invoices")
@@ -693,7 +705,7 @@ app.get("/debug/:invoiceId", async (req, res) => {
 });
 
 // 🔍 Add Environment Debug Endpoint
-app.get("/env-debug", (req, res) => {
+app.get("/api/env-debug", (req, res) => {
   res.json({
     nodeEnv: process.env.NODE_ENV,
     myfatoorahToken: MYFATOORAH_API_TOKEN
