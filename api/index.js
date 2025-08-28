@@ -720,17 +720,22 @@ app.get("/api/env-debug", (req, res) => {
 });
 
 // For local development
-if (require.main === module) {
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => {
-    console.log(`
-🚀 Invoice API Server Running!
-📍 Server: http://localhost:${PORT}
-💳 MyFatoorah: ${MYFATOORAH_API_TOKEN ? "✅ Configured" : "❌ Not Configured"}
-📋 Ready for company registration and invoices!
-    `);
-  });
-}
+// if (require.main === module) {
+//   const PORT = process.env.PORT || 3001;
+//   app.listen(PORT, () => {
+//     console.log(`
+// 🚀 Invoice API Server Running!
+// 📍 Server: http://localhost:${PORT}
+// 💳 MyFatoorah: ${MYFATOORAH_API_TOKEN ? "✅ Configured" : "❌ Not Configured"}
+// 📋 Ready for company registration and invoices!
+//     `);
+//   });
+// }
+
+
+module.exports = (req, res) => {
+  return app(req, res);
+};
 
 // Export for Vercel
 module.exports = app;
