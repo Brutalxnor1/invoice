@@ -745,4 +745,4 @@ module.exports = (req, res) => {
 };
 
 // Export for Vercel
-module.exports = app;
+// module.exports = app;
