@@ -15,10 +15,10 @@ const root = (req, res) => {
     companiesCount: companies.length,
     invoicesCount: invoices.length,
     endpoints: [
-      'POST /create-invoice - Create invoice with company registration',
-      'GET /invoices - Get all invoices',
-      'GET /invoices/:id - Get single invoice',
-      'GET /invoices/:id/pdf - Generate PDF'
+      'POST /api/create-invoice - Create invoice with company registration',
+      'GET /api/invoices - Get all invoices',
+      'GET /api/invoices/:id - Get single invoice',
+      'GET /api/invoices/:id/pdf - Generate PDF'
     ]
   });
 };
