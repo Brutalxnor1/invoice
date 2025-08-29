@@ -68,7 +68,7 @@ export default function InvoiceView() {
   const fetchInvoice = async (id: string) => {
     try {
       // const response = await fetch(`http://localhost:3001/invoices/${id}`);
-      const response = await fetch(`/api/invoices/${id}`);
+      const response = await fetch(`/invoices/${id}`);
       const data = await response.json();
       if (data.success) {
         setInvoice(data.data);

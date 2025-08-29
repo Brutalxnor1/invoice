@@ -107,7 +107,7 @@ export default function HomePage() {
                       <Link href={`/invoice/${invoice.id}`} className="btn btn-secondary" style={{ marginRight: '8px' }}>
                         View
                       </Link>
-                      <a href={`http://localhost:3001/api/invoices/${invoice.id}/pdf`} className="btn btn-secondary" target="_blank">
+                      <a href={`http://localhost:3001/invoices/${invoice.id}/pdf`} className="btn btn-secondary" target="_blank">
                         PDF
                       </a>
                     </td>
