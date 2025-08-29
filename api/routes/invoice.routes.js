@@ -11,7 +11,7 @@ module.exports = (app) => {
   app.get('/health', health);
 
   // 📋 Create Invoice
-  app.post('/create-invoice', createInvoice);
+  app.post('/api/create-invoice', createInvoice);
 
   // 🔍 Debug Invoice
   app.get('/debug/:invoiceId', debugInvoice);
@@ -26,8 +26,8 @@ module.exports = (app) => {
   app.get('/test-token', testToken);
 
   // 🔍 Get Single Invoice
-  app.get('/invoices/:invoiceId', getInvoice);
+  app.get('/api/invoices/:invoiceId', getInvoice);
 
   // 📄 Generate PDF
-  app.get('/invoices/:invoiceId/pdf', generatePdf);
+  app.get('/api/invoices/:invoiceId/pdf', generatePdf);
 };
