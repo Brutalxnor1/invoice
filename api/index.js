@@ -1,3 +1,40 @@
+
+// 📄 Generate PDF
+// app.get("/invoices/:invoiceId/pdf", async (req, res) => {
+//   try {
+//     const { invoiceId } = req.params;
+
+//     const { data: invoice, error } = await supabase
+//       .from("invoices")
+//       .select(
+//         "*, company:company_id(*, payment_details(*)), customer:customer_id(*), contact:contact_id(*), items:invoice_items(*)"
+//       )
+//       .eq("id", invoiceId)
+//       .single();
+
+//     if (error || !invoice) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Invoice not found" });
+//     }
+
+//     const html = generateInvoiceHTML(invoice);
+//     res.setHeader("Content-Type", "text/html");
+//     res.send(html);
+//   } catch (error) {
+//     console.error("❌ Error generating PDF:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// });
+
+
+
+
+
+
+
+
+
 // api/index.js
 const express = require("express");
 const cors = require("cors");
@@ -114,7 +151,7 @@ app.get("/health", (req, res) => {
 });
 
 // 📋 Create Invoice with Enhanced MyFatoorah Debugging
-app.post("/create-invoice", async (req, res) => {
+app.post("/api/create-invoice", async (req, res) => {
   try {
     console.log("📝 Creating invoice with company registration:", req.body);
 
@@ -507,36 +544,6 @@ app.get("/api/invoices/:invoiceId", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-// 📄 Generate PDF
-// app.get("/invoices/:invoiceId/pdf", async (req, res) => {
-//   try {
-//     const { invoiceId } = req.params;
-
-//     const { data: invoice, error } = await supabase
-//       .from("invoices")
-//       .select(
-//         "*, company:company_id(*, payment_details(*)), customer:customer_id(*), contact:contact_id(*), items:invoice_items(*)"
-//       )
-//       .eq("id", invoiceId)
-//       .single();
-
-//     if (error || !invoice) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Invoice not found" });
-//     }
-
-//     const html = generateInvoiceHTML(invoice);
-//     res.setHeader("Content-Type", "text/html");
-//     res.send(html);
-//   } catch (error) {
-//     console.error("❌ Error generating PDF:", error);
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// });
-
-
 
 // In api/index.js, update the PDF route:
 app.get("/api/invoices/:invoiceId/pdf", async (req, res) => {
