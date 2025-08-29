@@ -117,7 +117,7 @@ export default function CreateInvoice() {
 
     try {
       console.log('🚀 Submitting invoice with company registration:', formData);
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://invoice-back-one.vercel.app';  
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'invoice-backend-pearl.vercel.app';  
       // const response = await fetch('http://localhost:3001/create-invoice', {
       const response = await fetch(`${API_BASE_URL}/api/create-invoice`, {
         method: 'POST',
